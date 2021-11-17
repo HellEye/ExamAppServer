@@ -1,0 +1,13 @@
+version: "3.7"
+
+services:
+  mongo:
+    container_name: mongo
+    image: mongo
+    command: --quiet --logpath /dev/null
+  app:
+    container_name: app
+    external_links:
+      - mongo
+    depends_on:
+      - mongo
