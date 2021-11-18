@@ -1,14 +1,14 @@
 version: "3.7"
 
 services:
-  mongo:
-    container_name: mongo
+  examapp_mongo:
+    container_name: examapp_mongo
     image: mongo
     restart: always
     ports:
-      - 27017:27017
+      - 27017:27018
   app:
-    container_name: app
+    container_name: examapp
     restart: always
     build: .
     env_file: .env
@@ -18,6 +18,6 @@ services:
     ports:
       - 8081:80
     external_links:
-      - mongo
+      - examapp_mongo
     depends_on:
-      - mongo
+      - examapp_mongo

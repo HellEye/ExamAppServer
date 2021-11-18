@@ -9,6 +9,6 @@ COPY tsconfig.json ./
 RUN node --version
 RUN npm install
 
-EXPOSE 8081
+EXPOSE 8082
 
 CMD ["npm", "run", "debug"]

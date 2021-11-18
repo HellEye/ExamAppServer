@@ -1,16 +1,16 @@
 version: "3.7"
 
 services:
-  mongo:
-    container_name: mongo
+  examapp_mongo:
+    container_name: examapp_mongo
     image: mongo
     restart: always
     volumes:
       - ./data:/data/db
     ports:
-      - 27017:27017
+      - 27018:27017
   app:
-    container_name: node
+    container_name: examapp
     restart: always
     volumes:
       - ./src:/usr/src
@@ -23,12 +23,12 @@ services:
       - MONGO_URL=${MONGO_URL}
       - NODE_ENV=development
     ports:
-      - 8081:8081
+      - 8082:8081
       - 9229:9229
     links:
-      - mongo
+      - examapp_mongo
     depends_on:
-      - mongo
+      - examapp_mongo
 
 volumes:
   mongo-data:

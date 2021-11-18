@@ -1,13 +1,13 @@
 version: "3.7"
 
 services:
-  mongo:
-    container_name: mongo
+  examapp_mongo:
+    container_name: examapp_mongo
     image: mongo
     command: --quiet --logpath /dev/null
   app:
-    container_name: app
+    container_name: examapp
     external_links:
-      - mongo
+      - examapp_mongo
     depends_on:
-      - mongo
+      - examapp_mongo
