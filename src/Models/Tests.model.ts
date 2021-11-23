@@ -7,7 +7,7 @@ export interface ITest extends Document {
 	description?: String
 	password: String
 	user?: ObjectId
-	added: Schema.Types.Date
+	created: Schema.Types.Date
 	modified: Schema.Types.Date
 }
 
@@ -33,13 +33,16 @@ const testSchema: Schema = new Schema({
 		required: false,
 		ref: "User",
 	},
-	added: {
+	created: {
 		type: Schema.Types.Date,
 		required: true,
+		default: Date.now,
+		immutable: true,
 	},
 	modified: {
 		type: Schema.Types.Date,
 		required: true,
+		default: Date.now,
 	},
 })
 

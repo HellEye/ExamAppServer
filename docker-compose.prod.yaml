@@ -14,9 +14,11 @@ services:
     env_file: .env
     environment:
       - PORT=${PORT}
+      - HTTPSPORT=${HTTPSPORT}
       - MONGO_URL=${MONGO_URL}
     ports:
       - 8081:80
+      - 8443:443
     external_links:
       - examapp_mongo
     depends_on:

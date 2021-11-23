@@ -11,6 +11,8 @@
 # production
 /build
 
+cert
+
 # misc
 .DS_Store
 .env.local

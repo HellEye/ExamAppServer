@@ -20,10 +20,12 @@ services:
     env_file: .env.local
     environment:
       - PORT=${PORT}
+      - HTTPSPORT=${HTTPSPORT}
       - MONGO_URL=${MONGO_URL}
       - NODE_ENV=development
     ports:
       - 8082:8081
+      - 8443:8443
       - 9229:9229
     links:
       - examapp_mongo

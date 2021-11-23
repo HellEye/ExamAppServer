@@ -1,6 +1,11 @@
 import { Application, RequestHandler, Request, Response } from "express"
 import { Document, Model, Query } from "mongoose"
-import { ControllerObject, HttpMethods, generators } from "./ControllerFactory"
+import {
+	ControllerObject,
+	HttpMethods,
+	generators,
+	ProjectionExpression,
+} from "./ControllerFactory"
 import { Nullable } from "../Types/common"
 interface ExtraDbMethods {
 	dbFunc: string
@@ -9,14 +14,35 @@ interface ExtraDbMethods {
 type Method = "get" | "post" | "put" | "delete"
 type QueryParamValues = string | Object
 type QueryParams = { [key: string]: QueryParamValues }
+
+/**
+ * @param method: HTTP method to use
+ * @param apiPath: Full path to access this endpoint
+ * @param dbFunc: Database access function from a predefined list
+ * @param extra: Extra database functions to perform on cursor before collecting
+ * @param params: Change queryparam handling (big chunk of code, not advised)
+ * @param data: Change what part of request is returned as data (default: req.body)
+ * @param then: modify the response before replying
+ * @param catch: change error handling behavior
+ */
 interface ApiObject<D extends Document> {
+	/**@param method: HTTP method to use*/
 	method: Method
+	/**@param apiPath: Full path to access this endpoint */
 	apiPath: string
+	/**@param dbFunc: Database access function from a predefined list */
 	dbFunc: DbFunctions
+	/** @param extra: Extra database functions to perform on cursor before collecting */
 	extra?: ExtraDbMethods[]
+	/** @param params: Change queryparam handling (big chunk of code, not advised) */
 	params: (req: Request) => QueryParams
+	/**@param projection: Set the projection expression for data */
+	projection: ProjectionExpression<D>
+	/**@param data: Change what part of request is returned as data (default: req.body) */
 	data: (req: Request) => any
+	/**@param then: modify the response before replying */
 	then: (res: Response) => (data: any) => any
+	/**@param catch: change error handling behavior */
 	catch: (res: Response) => (e: any) => any
 }
 
@@ -87,10 +113,7 @@ const getApi = <D extends Document>(
 			}
 		})
 		newApi.params = (req: Request) => {
-			//TODO partial matching of query params, maybe with parameter given in get() in controller
-			//// actually use ?name=~foo for fuzzy?
-			//// other candidates: @, ^, ;, :, |, $, !, _
-			//// probably reserve $ for writing actual mongo querries
+			// ~ fuzzy match
 			const findObj: QueryParams = {} as QueryParams
 			for (let [key, param] of Object.entries(req.params)) {
 				if (key === "id") findObj._id = param
@@ -113,6 +136,11 @@ const getApi = <D extends Document>(
 			})
 			return findObj
 		}
+
+		newApi.projection = {
+			__v: 0,
+		}
+
 		newApi.data = (req: Request) => {
 			return req.body
 		}
@@ -124,7 +152,7 @@ const getApi = <D extends Document>(
 		newApi.catch =
 			(res) =>
 			(e: any): any => {
-				return res.status(500).send({ error: e })
+				return res.status(500).send({ message: e })
 			}
 		out[`${c.method}:${`${c.path}`}`] = newApi
 	})
@@ -145,9 +173,11 @@ const getApi = <D extends Document>(
 			app[obj.method](obj.apiPath, async (req, res) => {
 				const findObj = obj.params(req)
 				const newData = obj.data(req)
+				const projection = obj.projection
 				let query = generators[obj.dbFunc](data.model, {
 					findObj,
 					data: newData,
+					projection,
 				})
 				if (obj.extra) {
 					for (let extra of obj.extra) {
@@ -158,6 +188,7 @@ const getApi = <D extends Document>(
 						if (queryParams) query[extra.dbFunc](queryParams)
 					}
 				}
+
 				query.then(obj.then(res)).catch(obj.catch(res))
 			})
 		}

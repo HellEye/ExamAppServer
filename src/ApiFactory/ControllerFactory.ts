@@ -35,41 +35,47 @@ type GetControllersOut<D extends Document> = {
 	delete: HTTPMethodFunc<D>
 	finish: ControllerFinish<D>
 }
+
+export type ProjectionExpression<D extends Document> = {
+	[key: string]: 0 | 1
+}
+
 export type GeneratorInput<D extends Document> = {
 	findObj?: Partial<D>
 	data?: Partial<D> | Partial<D>[]
+	projection?: ProjectionExpression<D>
 }
 
 export const generators: { [key: string]: any } = {
 	findOne: <D extends Document>(
 		model: Model<D>,
-		{ findObj = {}, data = {} }: GeneratorInput<D>
+		{ findObj = {}, data = {}, projection = {} }: GeneratorInput<D>
 	) => {
-		return model.findOne(findObj as any)
+		return model.findOne(findObj as any, projection)
 	},
 	find: <D extends Document>(
 		model: Model<D>,
-		{ findObj = {}, data = {} }: GeneratorInput<D>
+		{ findObj = {}, data = {}, projection = {} }: GeneratorInput<D>
 	) => {
-		return model.find(findObj as any)
+		return model.find(findObj as any, projection)
 	},
 
 	create: <D extends Document>(
 		model: Model<D>,
-		{ findObj = {}, data = {} }: GeneratorInput<D>
+		{ findObj = {}, data = {}, projection = {} }: GeneratorInput<D>
 	) => {
 		return model.create(data)
 	},
 	insertMany: <D extends Document>(
 		model: Model<D>,
-		{ findObj = {}, data = {} }: GeneratorInput<D>
+		{ findObj = {}, data = {}, projection = {} }: GeneratorInput<D>
 	) => {
 		return model.insertMany(data as any)
 	},
 
 	findOneAndUpdate: <D extends Document>(
 		model: Model<D>,
-		{ findObj = {}, data = {} }: GeneratorInput<D>
+		{ findObj = {}, data = {}, projection = {} }: GeneratorInput<D>
 	) =>
 		model.findOneAndUpdate(findObj as any, data as any, {
 			new: true,
@@ -77,7 +83,7 @@ export const generators: { [key: string]: any } = {
 
 	updateMany: <D extends Document>(
 		model: Model<D>,
-		{ findObj = {}, data = {} }: GeneratorInput<D>
+		{ findObj = {}, data = {}, projection = {} }: GeneratorInput<D>
 	) =>
 		model.updateMany(findObj as any, data as any, {
 			new: true,
@@ -85,12 +91,12 @@ export const generators: { [key: string]: any } = {
 
 	findOneAndDelete: <D extends Document>(
 		model: Model<D>,
-		{ findObj = {}, data = {} }: GeneratorInput<D>
+		{ findObj = {}, data = {}, projection = {} }: GeneratorInput<D>
 	) => model.findOneAndDelete(findObj as any),
 
 	deleteMany: <D extends Document>(
 		model: Model<D>,
-		{ findObj = {}, data = {} }: GeneratorInput<D>
+		{ findObj = {}, data = {}, projection = {} }: GeneratorInput<D>
 	) => model.deleteMany(findObj as any),
 }
 

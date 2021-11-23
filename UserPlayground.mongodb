@@ -1,0 +1,11 @@
+
+// Select the database to use.
+use('test');
+db.usertokens.find({})
+// db.usertokens.insert({user: "asd", token: "asdf", expireAt: new Date('November 23, 2021 16:40:00')})
+// db.usertokens.find({})
+// db.usertokens.deleteMany({})
+// db.users.deleteMany({})
+
+// Index to remove expired tokens
+// db.usertokens.createIndex({expireAt:1}, {expireAfterSeconds: 0})
