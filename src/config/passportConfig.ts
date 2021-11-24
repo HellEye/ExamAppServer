@@ -13,7 +13,7 @@ const getLocalStrategy = () => {
 	const authenticateUser: VerifyFunction = async (username, password, done) => {
 		try {
 			const user = await UsersModel.findOne(
-				{ username: username },
+				{ username: username.replace(" ", "").toLowerCase() },
 				{ __v: 0 },
 				{ lean: true }
 			).exec()
@@ -43,9 +43,11 @@ const getLocalStrategy = () => {
 }
 
 const getTokenStrategy = () => {
-	const authenticateUser = async (token: any, done: any) => {
+	const authenticateUser = async (req: any, token: any, done: any) => {
 		try {
-			console.log("Token: ", token)
+			if (!req.cookies.token)
+				return done(null, false, { message: "login.errors.tokenNotProvided" })
+			token = req.cookies.token
 			const foundToken = await UserTokensModel.findOne(
 				{ token: token },
 				{ token: 1, user: 1 },
@@ -77,7 +79,10 @@ const getTokenStrategy = () => {
 			return done(e, false, { message: "login.errors.databaseError" })
 		}
 	}
-	const tokenStrategy = new AuthTokenStrategy(authenticateUser)
+	const tokenStrategy = new AuthTokenStrategy(
+		{ passReqToCallback: true },
+		authenticateUser
+	)
 	return tokenStrategy
 }
 

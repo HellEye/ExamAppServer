@@ -2,6 +2,7 @@ import express, { Application, Request, Response } from "express"
 import initPassport from "./config/passportConfig"
 import session from "express-session"
 import flash from "express-flash"
+import cookieParser from "cookie-parser"
 import connect from "./connect"
 import passport from "passport"
 import Routes from "./Routes"
@@ -20,6 +21,7 @@ const app: Application = express()
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
 app.use(flash())
+app.use(cookieParser())
 if (!process.env.SESSION_SECRET)
 	throw Error("Can't find SESSION_SECRET in env variables")
 

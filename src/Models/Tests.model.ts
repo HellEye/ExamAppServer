@@ -3,9 +3,9 @@ import mongoose, { Schema, ObjectId, Document, Number } from "mongoose"
 export interface ITest extends Document {
 	_id: ObjectId
 	author: ObjectId
-	name: String
-	description?: String
-	password: String
+	name: string
+	description?: string
+	password: string
 	user?: ObjectId
 	created: Schema.Types.Date
 	modified: Schema.Types.Date

@@ -44,6 +44,17 @@ interface ApiObject<D extends Document> {
 	then: (res: Response) => (data: any) => any
 	/**@param catch: change error handling behavior */
 	catch: (res: Response) => (e: any) => any
+
+	/**
+	 * @param catch: authorize access based on request
+	 * @default true
+	 */
+	authorize: (req: Request) => boolean | Promise<boolean>
+	/**
+	 * @param onAuthFail: what happens when authorization fails.
+	 * @default: res.status(401).send({message})
+	 */
+	onAuthFail: (req: Request, res: Response) => any
 }
 
 interface ApiBuilder<D extends Document> {
@@ -141,6 +152,15 @@ const getApi = <D extends Document>(
 			__v: 0,
 		}
 
+		newApi.onAuthFail = (req, res) => {
+			return res.status(401).send({
+				error: new Error("Unauthorized"),
+				message: "server.errors.unauthorized",
+			})
+		}
+
+		newApi.authorize = (req) => true
+
 		newApi.data = (req: Request) => {
 			return req.body
 		}
@@ -171,25 +191,29 @@ const getApi = <D extends Document>(
 	const finish = () => {
 		for (let [key, obj] of Object.entries(out)) {
 			app[obj.method](obj.apiPath, async (req, res) => {
-				const findObj = obj.params(req)
-				const newData = obj.data(req)
-				const projection = obj.projection
-				let query = generators[obj.dbFunc](data.model, {
-					findObj,
-					data: newData,
-					projection,
-				})
-				if (obj.extra) {
-					for (let extra of obj.extra) {
-						const queryParams =
-							typeof extra.params === "function"
-								? extra.params(req)
-								: extra.params
-						if (queryParams) query[extra.dbFunc](queryParams)
+				if (await obj.authorize(req)) {
+					const findObj = obj.params(req)
+					const newData = obj.data(req)
+					const projection = obj.projection
+					let query = generators[obj.dbFunc](data.model, {
+						findObj,
+						data: newData,
+						projection,
+					})
+					if (obj.extra) {
+						for (let extra of obj.extra) {
+							const queryParams =
+								typeof extra.params === "function"
+									? extra.params(req)
+									: extra.params
+							if (queryParams) query[extra.dbFunc](queryParams)
+						}
 					}
-				}
 
-				query.then(obj.then(res)).catch(obj.catch(res))
+					query.then(obj.then(res)).catch(obj.catch(res))
+				} else {
+					obj.onAuthFail(req, res)
+				}
 			})
 		}
 	}

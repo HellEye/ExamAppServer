@@ -12,7 +12,7 @@ const routes = (app: RoutesInput, passport?: PassportStatic): void => {
 
 	app.post("/api/register", async (req, res) => {
 		const userWithSameName = await UsersModel.findOne({
-			username: req.body.username,
+			username: req.body.username.replace(" ", "").toLowerCase(),
 		}).exec()
 		if (userWithSameName) {
 			res.status(400).send({ message: "register.errors.usernameExists" })
@@ -35,7 +35,7 @@ const routes = (app: RoutesInput, passport?: PassportStatic): void => {
 
 	app.post("/api/user/checkName", async (req, res) => {
 		const userWithSameName = await UsersModel.findOne({
-			username: req.body.value,
+			username: req.body.value.replace(" ", "").toLowerCase(),
 		}).exec()
 		if (userWithSameName) {
 			return res.send({
@@ -83,7 +83,7 @@ const routes = (app: RoutesInput, passport?: PassportStatic): void => {
 				}
 			}
 		)
-		if (req.body.token) {
+		if (req.cookies.token) {
 			return await passport.authenticate(
 				"authtoken",
 				{
@@ -98,6 +98,7 @@ const routes = (app: RoutesInput, passport?: PassportStatic): void => {
 					}
 
 					const expireIn = req.body.expireIn
+
 					await UserTokensModel.updateOne(
 						{ _id: user.token._id },
 						{
@@ -114,9 +115,17 @@ const routes = (app: RoutesInput, passport?: PassportStatic): void => {
 		return authWithPassword(req, res, next)
 	})
 
-	app.delete("/api/logout", (req, res) => {
-		req.logOut()
-		return res.redirect("/logout")
+	app.delete("/api/logout", async (req, res) => {
+		try {
+			const token = req.cookies.token
+			if (token) {
+				await UserTokensModel.deleteOne({ token: token })
+			}
+			req.logOut()
+			return res.send({ message: "login.message.logoutSuccess" })
+		} catch (e) {
+			res.status(500).send({ error: e, message: "login.error.serverError" })
+		}
 	})
 
 	app.get("/api/session", (req, res) => {
