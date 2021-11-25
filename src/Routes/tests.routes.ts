@@ -10,7 +10,9 @@ const routes = (app: RoutesInput) => {
 	getApi<ITest>(app, data)
 		.override("post", "/", {
 			data: async (req) => {
-				req.body.password = await bcrypt.hash(req.body.password, 10)
+				if (req.body.password)
+					req.body.password = await bcrypt.hash(req.body.password, 10)
+				console.log(req.body)
 				return req.body
 			},
 		})

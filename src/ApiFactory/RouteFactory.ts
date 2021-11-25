@@ -161,7 +161,7 @@ const getApi = <D extends Document>(
 
 		newApi.authorize = (req) => true
 
-		newApi.data = (req: Request) => {
+		newApi.data = async (req: Request) => {
 			return req.body
 		}
 		newApi.then =
@@ -193,7 +193,7 @@ const getApi = <D extends Document>(
 			app[obj.method](obj.apiPath, async (req, res) => {
 				if (await obj.authorize(req)) {
 					const findObj = obj.params(req)
-					const newData = obj.data(req)
+					const newData = await obj.data(req)
 					const projection = obj.projection
 					let query = generators[obj.dbFunc](data.model, {
 						findObj,

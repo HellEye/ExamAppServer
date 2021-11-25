@@ -26,7 +26,6 @@ const testSchema: Schema = new Schema({
 	},
 	password: {
 		type: String,
-		required: true,
 	},
 	user: {
 		type: Schema.Types.ObjectId,
