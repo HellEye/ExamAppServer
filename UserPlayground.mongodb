@@ -5,7 +5,8 @@ use('test');
 // db.users.find({}).forEach((u)=>{
 //   db.users.updateOne({_id:u._id}, {$set: {username: u.username.toLowerCase() } })
 // })
-db.users.find({})
+// db.users.find({})
+db.usertokens.find({user:ObjectId("619d370ea6bc1afdce8147cc")})
 // db.usertokens.find({})
 // db.usertokens.insert({user: "asd", token: "asdf", expireAt: new Date('November 23, 2021 16:40:00')})
 // db.usertokens.find({})
