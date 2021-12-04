@@ -39,8 +39,10 @@ class UserToken {
 	@prop({ required: true, default: 0 })
 	expireIn: number
 
-	refreshExpireDate() {
-		this.expireAt = getTokenExpireDate(this.expireIn)
+	refreshExpireDate(expireIn?: number) {
+		this.expireAt = getTokenExpireDate(
+			expireIn === undefined || expireIn === null ? this.expireIn : expireIn
+		)
 	}
 }
 

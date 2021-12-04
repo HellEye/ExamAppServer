@@ -6,7 +6,7 @@ use('test');
 //   db.users.updateOne({_id:u._id}, {$set: {username: u.username.toLowerCase() } })
 // })
 // db.users.find({})
-db.usertokens.find({user:ObjectId("619d370ea6bc1afdce8147cc")})
+db.usertokens.find({token:"4a11a3ea0a040be85375be731fe013a0c66bcab35feb894a808b6e9b068f7077"})
 // db.usertokens.find({})
 // db.usertokens.insert({user: "asd", token: "asdf", expireAt: new Date('November 23, 2021 16:40:00')})
 // db.usertokens.find({})

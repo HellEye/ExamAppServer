@@ -39,12 +39,12 @@ class UserService {
 		}
 	}
 	async loginWithUsername(
-		{ username, password, expireIn }: NonNullable<LoginInput>,
+		{ username, password }: NonNullable<LoginInput>,
 		context: Context
 	): Promise<LoginToken> {
-		if (!username || !password || expireIn === undefined)
-			return { message: "login.errors.unknownError" }
+		if (!username || !password) return { message: "login.errors.unknownError" }
 		try {
+			const expireIn = context.req.cookies.expireIn
 			const user = await Users.findOne({ username }, {}, { lean: true })
 			if (!user) return { message: "login.errors.userNotFound" }
 			if (!(await bcrypt.compare(password, user.password)))
@@ -68,7 +68,9 @@ class UserService {
 			// console.error("User not found but has token?")
 			// return {message: "login.errors.userNotFound"}
 			// }
-			foundToken.refreshExpireDate()
+			console.log(foundToken)
+			foundToken.refreshExpireDate(context.req.cookies.expireIn)
+			await foundToken.save()
 			context.res.cookie(
 				"token",
 				token,

@@ -28,6 +28,8 @@ class UserResolver {
 		@Arg("input", { nullable: true }) input: LoginInput,
 		@Ctx() context: Context
 	) {
+		console.log("Login attempt at ", new Date().toUTCString())
+		console.log("Cookies: ", context.req.cookies)
 		if (context.req.cookies.token)
 			return await this.userService.loginWithToken(
 				context.req.cookies.token,
